@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "Tabber",
+  "version": "1.0.0",
+  "description": "Autocomplete and next word prediction extension.",
+  "icons": {
+    "256": "icons/Twicture.png"
+  },
+  "author": "Jayant Bhawal",
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "script.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "permissions": []
+}
