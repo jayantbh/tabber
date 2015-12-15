@@ -91,7 +91,7 @@ function AddCurrentWordToDictionary() {
     var str = GetCurrentWord();
 
     var storage = chrome.storage.local;
-    if ($.inArray(str, Dictionary) == -1 && $.inArray(str.toLowerCase(), Dictionary) == -1) {
+    if (Dictionary.indexOf(str) == -1 && Dictionary.indexOf(str.toLowerCase()) == -1) {
         str = str.toLowerCase();
         Dictionary = Dictionary.concat(str);
         storage.set({"dict": Dictionary});
