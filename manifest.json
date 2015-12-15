@@ -18,10 +18,18 @@
         "*://*/*"
       ],
       "js": [
+        "js/levenshtein.js",
+        "js/jquery-2.1.4.min.js",
+        "js/auto.max.js",
+        "js/typeahead.bundle.js",
+        "js/lib.js",
         "script.js"
       ],
       "run_at": "document_start"
     }
+  ],
+  "web_accessible_resources":[
+    "dict.txt"
   ],
   "permissions": []
 }
