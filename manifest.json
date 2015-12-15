@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tabber",
-  "version": "1.0.0",
+  "version": "0.6.0",
   "description": "Autocomplete and next word prediction extension.",
   "icons": {
     "256": "icons/Twicture.png"
