@@ -12,7 +12,14 @@
             }
             if(e.keyCode == 32 || e.keyCode == 188 || e.keyCode == 190 || e.keyCode == 186){
                 //space or comma or period or semi-colon
-                AddCurrentWordToDictionary();
+                //AddCurrentWordToDictionary();
+                var lastWord = GetCurrentWord();
+                BestReplacementForCurrentWord(function (replacement) {
+                    if(replacement.length){
+                        document.activeElement.value = document.activeElement.value.replace(lastWord,replacement);
+                        document.activeElement.focus();
+                    }
+                });
             }
         });
         $(document).on("keyup", "input,textarea", function (e) {
@@ -25,7 +32,7 @@
                     if (lastWord.trim().length) {
                         BestMatch(lastWord, function (match, iterations, time) {
                             if (match.trim().length) {
-                                console.log(match + " found in " + iterations + " iterations after " + time + " ms.");
+                                //console.log(match + " found in " + iterations + " iterations after " + time + " ms.");
                                 var sub = match.substr(lastWord.length, match.length);
                                 if (document.activeElement.selectionStart == document.activeElement.selectionEnd) {
                                     var start = document.activeElement.selectionStart;

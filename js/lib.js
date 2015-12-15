@@ -72,6 +72,7 @@ function GetCurrentWord() {
     var word = ReturnWord(document.activeElement.value, caretPos);
     if (word) {
         if (isLetter(word[word.length - 1])) {
+            word = word.replace(window.getSelection().toString(),"");
             word = word.replace(/[^\w]/g, "");
             return word;
         }
@@ -86,20 +87,21 @@ function AddCurrentWordToDictionary() {
         str = str.toLowerCase();
         Dictionary = Dictionary.concat(str);
         storage.set({"dict": Dictionary});
-        console.log(str+" added.");
+        console.log(str + " added.");
     }
 }
 
 function BestMatch(str, callback) {
+    str = str.toLowerCase();
     var old_time = (new Date()).getTime();
-    var new_time, seconds_passed;
+    var new_time, time_passed;
     var val = "";
     var distance = 9999;
     var word = "";
     var iterations = 0;
     var length = Dictionary.length;
     for (var i = 0; i < length; i++) {
-        val = Dictionary[i];
+        val = Dictionary[i].toLowerCase();
         iterations++;
         if (val.length > str.length) {
             if (StartsWith(val, str)) {
@@ -109,8 +111,8 @@ function BestMatch(str, callback) {
                     word = val;
                     if (distance <= 1) {
                         new_time = (new Date()).getTime();
-                        seconds_passed = new_time - old_time;
-                        callback(word, iterations, seconds_passed);
+                        time_passed = new_time - old_time;
+                        callback(word, iterations, time_passed);
                         break;
                     }
                 }
@@ -118,6 +120,47 @@ function BestMatch(str, callback) {
         }
     }
     new_time = (new Date()).getTime();
-    seconds_passed = new_time - old_time;
-    callback(word, iterations, seconds_passed);
+    time_passed = new_time - old_time;
+    callback(word, iterations, time_passed);
+}
+
+function BestReplacementForCurrentWord(callback) {
+    var str = GetCurrentWord().toLowerCase();
+    var old_time = (new Date()).getTime();
+    var new_time, time_passed;
+    var val = "";
+    var distance = 9999;
+    var replacement = "";
+    var iterations = 0;
+    var length = Dictionary.length;
+    for (var i = 0; i < length; i++) {
+        val = Dictionary[i].toLowerCase();
+        iterations++;
+        var ld = Levenshtein(val, str);
+        if (ld < distance) {
+            distance = ld;
+            replacement = val;
+            if (distance == 0) {
+                new_time = (new Date()).getTime();
+                time_passed = new_time - old_time;
+                callback("", iterations, time_passed);
+                break;
+            }
+        }
+        if(ld == distance){
+            if(val.length == str.length){
+                replacement = val;
+            }
+        }
+    }
+    console.log(distance);
+    new_time = (new Date()).getTime();
+    time_passed = new_time - old_time;
+    if (distance == 1 || distance == 2) {
+        callback(replacement, iterations, time_passed);
+    }
+    else {
+        AddCurrentWordToDictionary();
+        callback("", iterations, time_passed);
+    }
 }
