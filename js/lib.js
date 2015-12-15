@@ -7,7 +7,7 @@ var Dictionary;
     var storage = chrome.storage.local;
     storage.get("dict", function (dict) {
         dict = dict.dict;
-        if (dict.length) {
+        if (dict) {
             Dictionary = dict;
             console.log("Dictionary loaded with " + Dictionary.length + " words.");
         }
@@ -39,6 +39,15 @@ function AddText(el, newText) {
     var after = text.substring(end, text.length);
     el.value = (before + newText + after);
     el.selectionStart = el.selectionEnd = start + newText.length;
+}
+
+function RemoveSelectedText(){
+    var el  = document.activeElement;
+    var text = el.value;
+
+    text = text.slice(0, el.selectionStart) + text.slice(el.selectionEnd);
+    el.value = text;
+    //console.log(text);
 }
 
 function GetCaretPosition(ctrl) {
@@ -73,7 +82,7 @@ function GetCurrentWord() {
     if (word) {
         if (isLetter(word[word.length - 1])) {
             word = word.replace(window.getSelection().toString(),"");
-            word = word.replace(/[^\w]/g, "");
+            word = word.replace(/[^\w\-.@]/g, "");
             return word;
         }
     }
@@ -124,8 +133,8 @@ function BestMatch(str, callback) {
     callback(word, iterations, time_passed);
 }
 
-function BestReplacementForCurrentWord(callback) {
-    var str = GetCurrentWord().toLowerCase();
+function BestReplacementForCurrentWord(str,callback) {
+    var str = str.toLowerCase();
     var old_time = (new Date()).getTime();
     var new_time, time_passed;
     var val = "";
