@@ -81,8 +81,7 @@ function GetCurrentWord() {
     var word = ReturnWord(document.activeElement.value, caretPos);
     if (word) {
         if (isLetter(word[word.length - 1])) {
-            word = word.replace(window.getSelection().toString(),"");
-            word = word.replace(/[^\w\-.@]/g, "");
+            word = word.replace(window.getSelection().toString(),"").substr(word.search(/[\S]*$/)).replace(/[^\w\-.@]/g, "");
             return word;
         }
     }
