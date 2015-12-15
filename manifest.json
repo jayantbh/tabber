@@ -20,8 +20,6 @@
       "js": [
         "js/levenshtein.js",
         "js/jquery-2.1.4.min.js",
-        "js/auto.max.js",
-        "js/typeahead.bundle.js",
         "js/lib.js",
         "script.js"
       ],
@@ -31,5 +29,7 @@
   "web_accessible_resources":[
     "dict.txt"
   ],
-  "permissions": []
+  "permissions": [
+    "storage"
+  ]
 }

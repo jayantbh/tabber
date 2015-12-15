@@ -2,17 +2,24 @@
  * Created by jayantbhawal on 14/12/15.
  */
 var Dictionary;
-if(localStorage.dict){
-    Dictionary = JSON.parse(localStorage.dict);
-    console.log("Dictionary loaded with " + Dictionary.length + " words.");
-}
-else{
-    $.get(chrome.extension.getURL('dict.txt'), function (words) {
-        Dictionary = words.split("\n");
-        console.log("Dictionary loaded with " + Dictionary.length + " words.");
-        localStorage.dict = JSON.stringify(Dictionary);
+
+(function () {
+    var storage = chrome.storage.local;
+    storage.get("dict", function (dict) {
+        dict = dict.dict;
+        if(dict.length){
+            Dictionary = dict;
+            console.log("Dictionary loaded with " + Dictionary.length + " words.");
+        }
+        else{
+            $.get(chrome.extension.getURL('dict.txt'), function (words) {
+                Dictionary = words.split("\n");
+                console.log("Dictionary loaded with " + Dictionary.length + " words.");
+                storage.set({"dict":Dictionary});
+            });
+        }
     });
-}
+})();
 
 function StartsWith (string, prefix) {
     string = string.toLowerCase();
@@ -30,9 +37,48 @@ function AddText(el, newText) {
     el.selectionStart = el.selectionEnd = start + newText.length;
 }
 
-function GetLastWord(str) {
-    var n = str.split(" ");
-    return n[n.length - 1];
+function GetCaretPosition(ctrl) {
+    var CaretPos = 0;   // IE Support
+    if (document.selection) {
+        ctrl.focus();
+        var Sel = document.selection.createRange();
+        Sel.moveStart('character', -ctrl.value.length);
+        CaretPos = Sel.text.length;
+    }
+    // Firefox support
+    else if (ctrl.selectionStart || ctrl.selectionStart == '0')
+        CaretPos = ctrl.selectionStart;
+    return (CaretPos);
+}
+
+function ReturnWord(text, caretPos) {
+    var index = text.indexOf(caretPos);
+    var preText = text.substring(0, caretPos);
+    if (preText.indexOf(" ") > 0) {
+        var words = preText.split(" ");
+        return words[words.length - 1]; //return last word
+    }
+    else {
+        return preText;
+    }
+}
+
+function GetCurrentWord() {
+    var caretPos = GetCaretPosition(document.activeElement);
+    var word = ReturnWord(document.activeElement.value, caretPos);
+    if (word != null) {
+        word = word.replace(/[^\w]/g, "");
+        return word;
+    }
+}
+
+function AddToDictionary(str){
+    var storage = chrome.storage.local;
+    if($.inArray(str,Dictionary) == -1 && $.inArray(str.toLowerCase(),Dictionary) == -1){
+        str = str.toLowerCase();
+        Dictionary = Dictionary.concat(str);
+        storage.set({"dict":Dictionary});
+    }
 }
 
 function BestMatch(str,callback) {

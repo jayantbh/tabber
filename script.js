@@ -9,7 +9,13 @@
             }
             if(e.keyCode == 13){
                 //enter
-                
+            }
+            if(e.keyCode == 32){
+                var word = GetCurrentWord().trim();
+                if(word.length){
+                    console.log(word+" added.");
+                    AddToDictionary(word);
+                }
             }
         });
         $(document).on("keyup", "input,textarea", function (e) {
@@ -17,8 +23,7 @@
                 //backspace
             }
             else{
-                var word = $(this).val();
-                var lastWord = GetLastWord(word);
+                var lastWord = GetCurrentWord();
                 if (lastWord.trim().length) {
                     BestMatch(lastWord, function (match, iterations, time) {
                         if (match.trim().length) {
@@ -36,23 +41,4 @@
             }
         });
     });
-
-
-    var observerConfig = {
-        childList: true,
-        subtree: true,
-        characterData: true
-    };
-
-    var observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            Array.prototype.slice.call(mutation.addedNodes).forEach(function (addedNode) {
-                //console.log(addedNode.innerText);
-            });
-        });
-    });
-
-    var targetNode = document;
-    observer.observe(targetNode, observerConfig);
-
 }());
