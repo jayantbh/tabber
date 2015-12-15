@@ -10,12 +10,9 @@
             if(e.keyCode == 13){
                 //enter
             }
-            if(e.keyCode == 32){
-                var word = GetCurrentWord().trim();
-                if(word.length){
-                    console.log(word+" added.");
-                    AddToDictionary(word);
-                }
+            if(e.keyCode == 32 || e.keyCode == 188 || e.keyCode == 190 || e.keyCode == 186){
+                //space or comma or period or semi-colon
+                AddCurrentWordToDictionary();
             }
         });
         $(document).on("keyup", "input,textarea", function (e) {
@@ -24,19 +21,21 @@
             }
             else{
                 var lastWord = GetCurrentWord();
-                if (lastWord.trim().length) {
-                    BestMatch(lastWord, function (match, iterations, time) {
-                        if (match.trim().length) {
-                            console.log(match + " found in " + iterations + " iterations after " + time + " ms.");
-                            var sub = match.substr(lastWord.length, match.length);
-                            if (document.activeElement.selectionStart == document.activeElement.selectionEnd) {
-                                var start = document.activeElement.selectionStart;
-                                AddText(document.activeElement, sub);
-                                document.activeElement.selectionStart = start;
-                                document.activeElement.selectionEnd = start + (match.length - lastWord.length);
+                if(lastWord){
+                    if (lastWord.trim().length) {
+                        BestMatch(lastWord, function (match, iterations, time) {
+                            if (match.trim().length) {
+                                console.log(match + " found in " + iterations + " iterations after " + time + " ms.");
+                                var sub = match.substr(lastWord.length, match.length);
+                                if (document.activeElement.selectionStart == document.activeElement.selectionEnd) {
+                                    var start = document.activeElement.selectionStart;
+                                    AddText(document.activeElement, sub);
+                                    document.activeElement.selectionStart = start;
+                                    document.activeElement.selectionEnd = start + (match.length - lastWord.length);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         });

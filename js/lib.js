@@ -7,21 +7,25 @@ var Dictionary;
     var storage = chrome.storage.local;
     storage.get("dict", function (dict) {
         dict = dict.dict;
-        if(dict.length){
+        if (dict.length) {
             Dictionary = dict;
             console.log("Dictionary loaded with " + Dictionary.length + " words.");
         }
-        else{
+        else {
             $.get(chrome.extension.getURL('dict.txt'), function (words) {
                 Dictionary = words.split("\n");
                 console.log("Dictionary loaded with " + Dictionary.length + " words.");
-                storage.set({"dict":Dictionary});
+                storage.set({"dict": Dictionary});
             });
         }
     });
 })();
 
-function StartsWith (string, prefix) {
+function isLetter(str) {
+    return str.length === 1 && str.match(/[a-z]/i);
+}
+
+function StartsWith(string, prefix) {
     string = string.toLowerCase();
     prefix = prefix.toLowerCase();
     return string.slice(0, prefix.length) == prefix;
@@ -32,7 +36,7 @@ function AddText(el, newText) {
     var end = el.selectionEnd;
     var text = el.value;
     var before = text.substring(0, start);
-    var after  = text.substring(end, text.length);
+    var after = text.substring(end, text.length);
     el.value = (before + newText + after);
     el.selectionStart = el.selectionEnd = start + newText.length;
 }
@@ -66,22 +70,27 @@ function ReturnWord(text, caretPos) {
 function GetCurrentWord() {
     var caretPos = GetCaretPosition(document.activeElement);
     var word = ReturnWord(document.activeElement.value, caretPos);
-    if (word != null) {
-        word = word.replace(/[^\w]/g, "");
-        return word;
+    if (word) {
+        if (isLetter(word[word.length - 1])) {
+            word = word.replace(/[^\w]/g, "");
+            return word;
+        }
     }
 }
 
-function AddToDictionary(str){
+function AddCurrentWordToDictionary() {
+    var str = GetCurrentWord();
+
     var storage = chrome.storage.local;
-    if($.inArray(str,Dictionary) == -1 && $.inArray(str.toLowerCase(),Dictionary) == -1){
+    if ($.inArray(str, Dictionary) == -1 && $.inArray(str.toLowerCase(), Dictionary) == -1) {
         str = str.toLowerCase();
         Dictionary = Dictionary.concat(str);
-        storage.set({"dict":Dictionary});
+        storage.set({"dict": Dictionary});
+        console.log(str+" added.");
     }
 }
 
-function BestMatch(str,callback) {
+function BestMatch(str, callback) {
     var old_time = (new Date()).getTime();
     var new_time, seconds_passed;
     var val = "";
@@ -89,19 +98,19 @@ function BestMatch(str,callback) {
     var word = "";
     var iterations = 0;
     var length = Dictionary.length;
-    for(var i = 0; i < length; i++){
+    for (var i = 0; i < length; i++) {
         val = Dictionary[i];
         iterations++;
         if (val.length > str.length) {
-            if(StartsWith(val,str)){
+            if (StartsWith(val, str)) {
                 var ld = Levenshtein(val, str);
                 if (ld < distance) {
                     distance = ld;
                     word = val;
-                    if(distance <= 1){
+                    if (distance <= 1) {
                         new_time = (new Date()).getTime();
                         seconds_passed = new_time - old_time;
-                        callback(word,iterations,seconds_passed);
+                        callback(word, iterations, seconds_passed);
                         break;
                     }
                 }
@@ -110,5 +119,5 @@ function BestMatch(str,callback) {
     }
     new_time = (new Date()).getTime();
     seconds_passed = new_time - old_time;
-    callback(word,iterations,seconds_passed);
+    callback(word, iterations, seconds_passed);
 }
